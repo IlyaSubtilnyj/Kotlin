@@ -1,0 +1,12 @@
+[
+  {
+    "id": "",
+    "coaches": ["John Doe", "Jane Smith"],
+    "description": "This is a fitness program.",
+    "imagePrefix": "fitness_program_",
+    "name": "Fitness Program",
+    "price": 99,
+    "rating": 4.5,
+    "ratingNumber": 100
+  }
+]

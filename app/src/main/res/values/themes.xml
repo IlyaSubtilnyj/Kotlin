@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Application" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="roundedImage" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10%</item>
+    </style>
+</resources>

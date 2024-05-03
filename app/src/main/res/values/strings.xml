@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Application</string>
+    <string name="title_activity_sign_up">Welcome</string>
+    <string name="title_activity_enter">EnterActivity</string>
+    <string name="title_btn_sign_up">Sign up!</string>
+    <string name="title_btn_sign_in">Welcome back</string>
+    <string name="hint_edt_email">test@test.by</string>
+    <string name="hint_edt_pass">1111</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_detailed">DetailedActivity</string>
+    <string name="cardContent">Super content</string>
+    <string name="cardDesc">Super description</string>
+    <string name="title_activity_navigation_check">NavigationCheck</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_filter">FilterActivity</string>
+    <string name="title_activity_write_review_form">WriteReviewFormActivity</string>
+</resources>
