@@ -26,18 +26,18 @@ class NavigationCheck : CapableActivity<TmplCheckBinding>() {
         if (result.resultCode == RESULT_OK) {
             val data: Intent? = result.data
             val array = data!!.serializable<ArrayList<StorageItem>>("filteredArray")!!
-            getFragment<Home>()?.setData(array)
+            getFragment<Home>()?.attach(R.id.frame_layout, array)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        replaceFragment(Home.newInstance(UserSettings("test"), fullArray, R.id.frame_layout))
+        replaceFragment(Home.newInstance(UserSettings("test"), fullArray))
         b.bottomNavigationView.setOnItemSelectedListener {
             when(it.itemId) {
                 R.id.home -> {
-                    replaceFragment(Home.newInstance(UserSettings("test"), fullArray, R.id.frame_layout))
+                    replaceFragment(Home.newInstance(UserSettings("test"), fullArray))
                 }
             }
             true
@@ -48,7 +48,7 @@ class NavigationCheck : CapableActivity<TmplCheckBinding>() {
                 b.searchView.clearFocus()
                 if (query != null) {
                     val filteredItems = fullArray.filter { it.name.contains(query) }
-                    getFragment<Home>()?.setData(filteredItems)
+                    getFragment<Home>()?.attach(R.id.frame_layout, fullArray)
                 }
                 return false
             }
@@ -56,7 +56,7 @@ class NavigationCheck : CapableActivity<TmplCheckBinding>() {
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (newText.isNullOrEmpty()) {
                     b.searchView.clearFocus()
-                    getFragment<Home>()?.setData(fullArray)
+                    getFragment<Home>()?.attach(R.id.frame_layout, fullArray)
                 }
                 return false
             }
@@ -66,34 +66,17 @@ class NavigationCheck : CapableActivity<TmplCheckBinding>() {
         FirebaseDatabaseHelper.createCallback(object : FirebaseDatabaseHelper.Companion.MyCallback {
             override fun onCallback(items: List<StorageItem>) {
                 fullArray = items
-                getFragment<Home>()?.setData(items)
+                getFragment<Home>()?.attach(R.id.frame_layout, items)
             }
         })
 
     }
 
-    private fun <T : Fragment> getFragment(): T? {
-
-        return try {
-            val fragment = supportFragmentManager.findFragmentById(R.id.frame_layout) as T
-            fragment
-        } catch (e: ClassCastException) {
-            null
-        }
-    }
-
+    @ViewCallback
     fun filterThat(view: View?) {
 
         val intent = Intent(this, FilterActivity::class.java)
         intent.putExtra("array", ArrayList(fullArray))
         someActivityResultLauncher.launch(intent)
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.frame_layout, fragment)
-        fragmentTransaction.commit()
     }
 }

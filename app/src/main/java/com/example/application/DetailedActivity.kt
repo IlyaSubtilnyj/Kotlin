@@ -1,5 +1,7 @@
 package com.example.application
 
+import android.graphics.drawable.Icon
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -8,6 +10,8 @@ import android.widget.ListView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,6 +23,8 @@ import com.denzcoskun.imageslider.ImageSlider
 import com.denzcoskun.imageslider.constants.ScaleTypes
 import com.denzcoskun.imageslider.models.SlideModel
 import com.example.application.databinding.TmplDetailedBinding
+import com.example.application.databinding.TmplSignInBinding
+import com.example.application.models.CapableActivity
 import com.example.application.models.FirebaseDatabaseHelper
 import com.example.application.models.ListAdapter
 import com.example.application.models.Review
@@ -40,47 +46,20 @@ import com.like.OnLikeListener
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
-data class SlideModel(val imageUrl: String, val title: String)
-suspend fun fetchSlidesFromFirebaseStorage(prefix: String): List<SlideModel> {
-    val storageRef = Firebase.storage.reference
+class DetailedActivity : CapableActivity<TmplDetailedBinding>(), OnLikeListener {
 
-    // Replace "images" with the appropriate folder or path in your Firebase Storage
-    val imagesRef = storageRef.child("images")
-
-    // Fetch the list of items (files) from Firebase Storage
-    val items = imagesRef.listAll().await().items
-
-    // Filter the items based on the provided image names or attributes
-    val filteredItems = items.filter { item ->
-        val imageName = item.name
-        imageName.startsWith(prefix) // Modify the condition based on your criteria
+    override fun inflateBinding(): TmplDetailedBinding {
+        return TmplDetailedBinding.inflate(layoutInflater)
     }
-
-    // Fetch the download URL for each filtered item and create SlideModel objects
-    val slideModels = mutableListOf<SlideModel>()
-    filteredItems.forEach { item ->
-        val downloadUrl = item.downloadUrl.await().toString()
-        val slideModel = SlideModel(downloadUrl)
-        slideModels.add(slideModel)
-    }
-
-    return slideModels
-}
-
-
-class DetailedActivity : ComponentActivity(), OnLikeListener {
 
     private lateinit var listAdapter: ReviewListAdapter
     private lateinit var dataList: List<Review>
-
-    private lateinit var binding: TmplDetailedBinding
-
     private lateinit var target: StorageItem
+    private var isStared: Boolean = false
+    private var inComments: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = TmplDetailedBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         if (this.intent != null) {
 
@@ -90,59 +69,105 @@ class DetailedActivity : ComponentActivity(), OnLikeListener {
             val slides = runBlocking { fetchSlidesFromFirebaseStorage(target.imagePrefix) }
             if (slides.isEmpty()) {
 
-                binding.imageSlider.visibility = View.GONE
+                b.imageSlider.visibility = View.GONE
             } else {
 
-                binding.imageSlider.setImageList(slides)
+                b.imageSlider.setImageList(slides)
             }
 
             val result = runBlocking {
                 listReviewAsync()
             }
-            Log.i("there", "lol")
-            Log.i("list", result.toString())
+
             this.dataList = result
             this.listAdapter = ReviewListAdapter(this, dataList)
-            binding.lvReviews.adapter       = listAdapter
-            binding.lvReviews.isClickable   = true
+            b.lvReviews.adapter       = listAdapter
+            b.lvReviews.isClickable   = true
 
-            binding.tvName.text         = target.name
-            binding.tvDescription.text  = target.description
-            binding.tvPrice.text        = target.price.toString()
-            binding.tvRating.text       = target.rating.toString()
-            binding.tvCoaches.text      = target.coaches.joinToString(", ")
+            b.tvName.text         = target.name
+            b.tvDescription.text  = target.description
+            b.tvPrice.text        = target.price.toString()
+            b.tvRating.text       = target.rating.toString()
+            b.tvCoaches.text      = target.coaches.joinToString(", ")
         }
 
-        binding.starButton.isLiked = false;
-        binding.starButton.setOnLikeListener(this);
+
+        b.imageView.setOnClickListener{
+            if (this.isStared) {
+                b.imageView.setImageResource(com.like.view.R.drawable.star_off)
+            } else {
+                b.imageView.setImageResource(com.like.view.R.drawable.star_on)
+            }
+            this.isStared = !this.isStared
+        }
+
+        b.tvReviewsTitle.setOnClickListener {
+            if (this.inComments) {
+                b.mainContent.visibility = View.VISIBLE
+            } else {
+                b.mainContent.visibility = View.GONE
+            }
+            this.inComments = !this.inComments
+        }
+
+        b.starButton.isLiked = false;
+        b.starButton.setOnLikeListener(this);
+    }
+
+    @ViewCallback
+    fun writeReview(view: View?) {
+
+        val review = Review("Hello world!sadfdfdsfdsfa cdsc csdcs csdac", Companion.who)
+        FirebaseDatabaseHelper.reviews.child(target.id).push().setValue(review)
+    }
+
+    @ViewCallback
+    override fun liked(likeButton: LikeButton?) {
+        val id = target.id
+
+    }
+
+    @ViewCallback
+    override fun unLiked(likeButton: LikeButton?) {
+        TODO("Not yet implemented")
+    }
+
+    data class SlideModel(val imageUrl: String, val title: String)
+    private suspend fun fetchSlidesFromFirebaseStorage(prefix: String): List<com.denzcoskun.imageslider.models.SlideModel> {
+        val storageRef = Firebase.storage.reference
+
+        // Replace "images" with the appropriate folder or path in your Firebase Storage
+        val imagesRef = storageRef.child("images")
+
+        // Fetch the list of items (files) from Firebase Storage
+        val items = imagesRef.listAll().await().items
+
+        // Filter the items based on the provided image names or attributes
+        val filteredItems = items.filter { item ->
+            val imageName = item.name
+            imageName.startsWith(prefix) // Modify the condition based on your criteria
+        }
+
+        // Fetch the download URL for each filtered item and create SlideModel objects
+        val slideModels = mutableListOf<com.denzcoskun.imageslider.models.SlideModel>()
+        filteredItems.forEach { item ->
+            val downloadUrl = item.downloadUrl.await().toString()
+            val slideModel = SlideModel(downloadUrl)
+            slideModels.add(slideModel)
+        }
+
+        return slideModels
     }
 
     private suspend fun listReviewAsync(): List<Review> {
         val itemList = mutableListOf<Review>() // Change String to your item type
-        var list: DataSnapshot = FirebaseDatabaseHelper.reviews.child(target.id).get().await()
+        val list: DataSnapshot = FirebaseDatabaseHelper.reviews.child(target.id).get().await()
         for (review in list.children) {
-            Log.i("Aga", "dada")
             val item = review.getValue(Review::class.java) // Change String to your item type
             item?.let {
                 itemList.add(it)
             }
         }
         return itemList
-    }
-
-    fun writeReview(view: View?) {
-
-        val review = Review("Hello world!sadfdfdsfdsfa cdsc csdcs csdac", "!!!current user email!!!")
-        FirebaseDatabaseHelper.reviews.child(target.id).push().setValue(review)
-    }
-
-    override fun liked(likeButton: LikeButton?) {
-
-        val id = target.id
-
-    }
-
-    override fun unLiked(likeButton: LikeButton?) {
-        TODO("Not yet implemented")
     }
 }

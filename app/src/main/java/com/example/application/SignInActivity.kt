@@ -12,11 +12,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.application.databinding.TmplCheckBinding
 import com.example.application.databinding.TmplSignInBinding
 import com.example.application.models.CapableActivity
+import com.example.application.models.FirebaseDatabaseHelper
 import com.example.application.models.Segue
+import com.example.application.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.runBlocking
 
 class SignInActivity : CapableActivity<TmplSignInBinding>() {
 
@@ -31,17 +34,45 @@ class SignInActivity : CapableActivity<TmplSignInBinding>() {
     fun signIn(view: View?){
 
         val isOk = this.processLoginForm()
-        Log.i("lol", isOk.toString())
         if (isOk) {
+
+            disableSignInButton()
 
             Firebase.auth.signInWithEmailAndPassword(email,password).addOnCompleteListener { task ->
                 if(task.isSuccessful){
-                    redirect<NavigationCheck>()
+
+                    Companion.who   = email
+                    FirebaseDatabaseHelper.getUserAsync(email) { user, exception ->
+                        if (user != null) {
+                            Companion.User = user
+                            redirect<NavigationCheck>()
+                        } else {
+
+                            Toast.makeText(applicationContext, exception?.localizedMessage, Toast.LENGTH_LONG).show()
+                        }
+                        enableSignInButton()
+                    }
+                    
                 }
             }.addOnFailureListener { exception ->
                 Toast.makeText(applicationContext,exception.localizedMessage, Toast.LENGTH_LONG).show()
+                enableSignInButton()
             }
         }
+    }
+
+    private fun disableSignInButton() {
+
+        b.buttonSignIn.isClickable = false
+        b.buttonSignIn.isFocusable = false
+        b.buttonSignIn.alpha = 0.5f
+    }
+
+    private fun enableSignInButton() {
+
+        b.buttonSignIn.isClickable = true
+        b.buttonSignIn.isFocusable = true
+        b.buttonSignIn.alpha = 1.0f
     }
 
     @ViewCallback

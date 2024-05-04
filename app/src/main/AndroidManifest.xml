@@ -34,11 +34,11 @@
             android:name=".DetailedActivity"
             android:exported="false"
             android:label="@string/title_activity_detailed"
-            android:theme="@style/Theme.Application" />
+            android:theme="@style/Theme.AppCompat.DayNight" />
         <activity
             android:name=".SignInActivity"
             android:exported="false"
-            android:label="@string/title_activity_login"
+            android:label="@string/title_activity_sign_in"
             android:theme="@style/Theme.AppCompat.DayNight" />
         <activity
             android:name=".EnterActivity"

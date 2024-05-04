@@ -9,6 +9,7 @@ import android.widget.AdapterView
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import com.example.application.databinding.FragmentHomeBinding
+import com.example.application.models.CapableFragment
 import com.example.application.models.FragmentUtils
 import com.example.application.models.ListAdapter
 import com.example.application.models.Segue
@@ -19,42 +20,28 @@ import kotlin.reflect.full.declaredMemberProperties
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-private const val ARG_PARAM3 = "param3"
 
 /**
  * A simple [Fragment] subclass.
  * Use the [Home.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Home : Fragment() {
+class Home : CapableFragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var listAdapter: ListAdapter
     private lateinit var dataList: List<StorageItem>
     private lateinit var userSettings: UserSettings
-    private var fragmentLayout = 0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun setData(vararg items: Any) {
 
-        Log.i("Createlol", "lol")
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            userSettings    = it.serializable<UserSettings>(ARG_PARAM1)!!
-            fragmentLayout  = it.getInt(ARG_PARAM2)
-            dataList        = it.serializable<ArrayList<StorageItem>>(ARG_PARAM3)!!
+        var data: List<StorageItem> = emptyList()
+        for ((index, item) in items.withIndex()) {
+            if (index == 0 && item is List<*>) {
+                data = item as List<StorageItem>
+            }
         }
 
-        this.listAdapter = ListAdapter(requireContext(), this.dataList)
-    }
-
-    private fun convertDataClassToPairs(data: Any): List<Pair<String, Any?>> {
-        return data.javaClass.kotlin.declaredMemberProperties.map { property ->
-            property.name to property.get(data)
-        }
-    }
-
-    fun setData(data: List<StorageItem>) {
-        Log.i("there", this.dataList.toString())
         val hash1 = this.dataList.hashCode()
         val hash2 = data.hashCode()
         val areEqual = hash1 == hash2
@@ -62,11 +49,18 @@ class Home : Fragment() {
         if (areEqual) return
         this.dataList = data
         this.listAdapter = ListAdapter(requireContext(), dataList)
-        updateView()
+        this.updateView()
     }
 
-    private fun updateView() {
-        FragmentUtils.refreshFragment(context, fragmentLayout)
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            userSettings    = it.serializable<UserSettings>(ARG_PARAM1)!!
+            dataList        = it.serializable<ArrayList<StorageItem>>(ARG_PARAM2)!!
+        }
+
+        this.listAdapter = ListAdapter(requireContext(), this.dataList)
     }
 
     override fun onCreateView(
@@ -102,12 +96,11 @@ class Home : Fragment() {
          * @return A new instance of fragment Home.
          */
         @JvmStatic
-        fun newInstance(param1: UserSettings, list: List<StorageItem>, fragmentLayout: Int) =
+        fun newInstance(param1: UserSettings, param2: List<StorageItem>) =
             Home().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_PARAM1, param1)
-                    putInt(ARG_PARAM2, fragmentLayout)
-                    putSerializable(ARG_PARAM3, ArrayList(list))
+                    putSerializable(ARG_PARAM2, ArrayList(param2))
                 }
             }
     }
