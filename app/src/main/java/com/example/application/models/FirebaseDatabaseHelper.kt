@@ -2,6 +2,7 @@ package com.example.application.models
 
 import android.content.Context
 import android.util.Log
+import com.denzcoskun.imageslider.models.SlideModel
 import com.example.application.R
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -10,6 +11,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.inject.Deferred
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -101,6 +103,33 @@ class FirebaseDatabaseHelper {
                 return email.substring(0, dotIndex)
             }
             return email
+        }
+
+        data class SlideModel(val imageUrl: String, val title: String)
+        suspend fun fetchSlidesFromFirebaseStorage(prefix: String): List<com.denzcoskun.imageslider.models.SlideModel> {
+            val storageRef = Firebase.storage.reference
+
+            // Replace "images" with the appropriate folder or path in your Firebase Storage
+            val imagesRef = storageRef.child("images")
+
+            // Fetch the list of items (files) from Firebase Storage
+            val items = imagesRef.listAll().await().items
+
+            // Filter the items based on the provided image names or attributes
+            val filteredItems = items.filter { item ->
+                val imageName = item.name
+                imageName.startsWith(prefix) // Modify the condition based on your criteria
+            }
+
+            // Fetch the download URL for each filtered item and create SlideModel objects
+            val slideModels = mutableListOf<com.denzcoskun.imageslider.models.SlideModel>()
+            filteredItems.forEach { item ->
+                val downloadUrl = item.downloadUrl.await().toString()
+                val slideModel = SlideModel(downloadUrl)
+                slideModels.add(slideModel)
+            }
+
+            return slideModels
         }
 
     }

@@ -25,15 +25,15 @@ class ReviewListAdapter(context: Context, dataList: List<Review?>?) :
             view = LayoutInflater.from(context).inflate(R.layout.tmpl_review_list_item, parent, false)
         }
 
-        if (listData == null) return view!!
+        //if (listData == null) return view!!
 
         val reviewDisplayProvider = view!!.findViewById<TextView>(R.id.tv_review_list_item)
         val text = SpannableStringBuilder()
             .bold {
-                append(listData.email)
+                append(listData!!.email)
             }
             .append("   ")
-            .append(listData.description)
+            .append(listData!!.description)
         reviewDisplayProvider.text = text
 
         return view

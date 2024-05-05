@@ -1,6 +1,7 @@
 package com.example.application.models
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,9 +9,19 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.manager.Lifecycle
 import com.example.application.R
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class ListAdapter(context: Context, dataList: List<StorageItem?>?) :
     ArrayAdapter<StorageItem?>(context, R.layout.list_item, dataList!!) {
@@ -31,15 +42,28 @@ class ListAdapter(context: Context, dataList: List<StorageItem?>?) :
         val listRating = view.findViewById<TextView>(R.id.listRating)
         listRating.text = listData.rating.toString()
 
-        Firebase.storage("gs://kotlin-64235.appspot.com")
-            .getReference("images").child(listData.imagePrefix + ".jpg")
-           .downloadUrl.addOnSuccessListener {
-               try {
-                   Glide.with(view)
-                       .load(it)
-                       .into(listImage)
-               } catch (ex: IllegalArgumentException) {}
-           }
+
+        val storageReference = Firebase.storage("gs://kotlin-64235.appspot.com").getReference("images")
+
+        storageReference.listAll()
+            .addOnSuccessListener { result ->
+                val childReferences = result.items.filter { item ->
+                    item.name.startsWith("${listData.imagePrefix}1")
+                }
+
+                if (childReferences.isNotEmpty()) {
+                    val firstChildReference = childReferences.first()
+
+                    firstChildReference.downloadUrl
+                        .addOnSuccessListener { url ->
+                            Glide.with(view)
+                                .load(url)
+                                .into(listImage)
+                        }
+                        .addOnFailureListener {}
+                }
+            }
+            .addOnFailureListener {}
 
         return view
     }

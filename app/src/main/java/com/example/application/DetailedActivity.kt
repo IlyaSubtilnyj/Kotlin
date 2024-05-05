@@ -1,52 +1,22 @@
 package com.example.application
 
-import android.graphics.drawable.Icon
-import android.opengl.Visibility
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.ImageView
-import android.widget.ListView
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.bumptech.glide.Glide
-import com.denzcoskun.imageslider.ImageSlider
-import com.denzcoskun.imageslider.constants.ScaleTypes
-import com.denzcoskun.imageslider.models.SlideModel
+import android.widget.Toast
 import com.example.application.databinding.TmplDetailedBinding
-import com.example.application.databinding.TmplSignInBinding
 import com.example.application.models.CapableActivity
 import com.example.application.models.FirebaseDatabaseHelper
-import com.example.application.models.ListAdapter
 import com.example.application.models.Review
 import com.example.application.models.ReviewListAdapter
 import com.example.application.models.StorageItem
+import com.example.application.models.User
 import com.example.application.models.serializable
-import com.example.application.ui.theme.ApplicationTheme
 import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import com.like.LikeButton
-import com.like.OnAnimationEndListener
-import com.like.OnLikeListener
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
-class DetailedActivity : CapableActivity<TmplDetailedBinding>(), OnLikeListener {
+
+class DetailedActivity : CapableActivity<TmplDetailedBinding>() {
 
     override fun inflateBinding(): TmplDetailedBinding {
         return TmplDetailedBinding.inflate(layoutInflater)
@@ -66,7 +36,7 @@ class DetailedActivity : CapableActivity<TmplDetailedBinding>(), OnLikeListener 
             val target  = intent.serializable<StorageItem>("object")!!
             this.target = target
 
-            val slides = runBlocking { fetchSlidesFromFirebaseStorage(target.imagePrefix) }
+            val slides = runBlocking { FirebaseDatabaseHelper.fetchSlidesFromFirebaseStorage(target.imagePrefix) }
             if (slides.isEmpty()) {
 
                 b.imageSlider.visibility = View.GONE
@@ -89,16 +59,15 @@ class DetailedActivity : CapableActivity<TmplDetailedBinding>(), OnLikeListener 
             b.tvPrice.text        = target.price.toString()
             b.tvRating.text       = target.rating.toString()
             b.tvCoaches.text      = target.coaches.joinToString(", ")
-        }
+            if (Companion.User.favourites?.contains(this.target.id) == true) {
 
-
-        b.imageView.setOnClickListener{
-            if (this.isStared) {
-                b.imageView.setImageResource(com.like.view.R.drawable.star_off)
-            } else {
                 b.imageView.setImageResource(com.like.view.R.drawable.star_on)
+                this.isStared = true
+            } else {
+
+                b.imageView.setImageResource(com.like.view.R.drawable.star_off)
+                this.isStared = false
             }
-            this.isStared = !this.isStared
         }
 
         b.tvReviewsTitle.setOnClickListener {
@@ -109,9 +78,6 @@ class DetailedActivity : CapableActivity<TmplDetailedBinding>(), OnLikeListener 
             }
             this.inComments = !this.inComments
         }
-
-        b.starButton.isLiked = false;
-        b.starButton.setOnLikeListener(this);
     }
 
     @ViewCallback
@@ -122,41 +88,48 @@ class DetailedActivity : CapableActivity<TmplDetailedBinding>(), OnLikeListener 
     }
 
     @ViewCallback
-    override fun liked(likeButton: LikeButton?) {
-        val id = target.id
+    fun addToFavorites(view: View?) {
 
-    }
+        if (this.isStared) {
 
-    @ViewCallback
-    override fun unLiked(likeButton: LikeButton?) {
-        TODO("Not yet implemented")
-    }
+            val matchingIds: MutableList<String> = Companion.User.favourites?.toMutableList() ?: mutableListOf()
+            matchingIds.remove(target.id)
+            val user = User(Companion.User.firstName, Companion.User.lastName, matchingIds)
 
-    data class SlideModel(val imageUrl: String, val title: String)
-    private suspend fun fetchSlidesFromFirebaseStorage(prefix: String): List<com.denzcoskun.imageslider.models.SlideModel> {
-        val storageRef = Firebase.storage.reference
+            Companion.who?.let {
+                FirebaseDatabaseHelper.setUserAsync(it, user) { success, exception ->
+                    if (success) {
 
-        // Replace "images" with the appropriate folder or path in your Firebase Storage
-        val imagesRef = storageRef.child("images")
+                        Companion.User = user
+                        b.imageView.setImageResource(com.like.view.R.drawable.star_off)
+                        this.isStared = false
+                    } else {
 
-        // Fetch the list of items (files) from Firebase Storage
-        val items = imagesRef.listAll().await().items
+                        Toast.makeText(applicationContext, exception?.localizedMessage, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
 
-        // Filter the items based on the provided image names or attributes
-        val filteredItems = items.filter { item ->
-            val imageName = item.name
-            imageName.startsWith(prefix) // Modify the condition based on your criteria
+        } else {
+
+            val matchingIds: MutableList<String> = Companion.User.favourites?.toMutableList() ?: mutableListOf()
+            matchingIds.add(target.id)
+            val user = User(Companion.User.firstName, Companion.User.lastName, matchingIds)
+
+            Companion.who?.let {
+                FirebaseDatabaseHelper.setUserAsync(it, user) { success, exception ->
+                    if (success) {
+
+                        Companion.User = user
+                        b.imageView.setImageResource(com.like.view.R.drawable.star_on)
+                        this.isStared = true
+                    } else {
+
+                        Toast.makeText(applicationContext, exception?.localizedMessage, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
         }
-
-        // Fetch the download URL for each filtered item and create SlideModel objects
-        val slideModels = mutableListOf<com.denzcoskun.imageslider.models.SlideModel>()
-        filteredItems.forEach { item ->
-            val downloadUrl = item.downloadUrl.await().toString()
-            val slideModel = SlideModel(downloadUrl)
-            slideModels.add(slideModel)
-        }
-
-        return slideModels
     }
 
     private suspend fun listReviewAsync(): List<Review> {

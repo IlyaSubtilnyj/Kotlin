@@ -5,14 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.SearchView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.example.application.databinding.TmplCheckBinding
-import com.example.application.databinding.TmplSignInBinding
 import com.example.application.models.CapableActivity
 import com.example.application.models.FirebaseDatabaseHelper
 import com.example.application.models.StorageItem
 import com.example.application.models.serializable
+
 
 class NavigationCheck : CapableActivity<TmplCheckBinding>() {
 
@@ -37,7 +35,15 @@ class NavigationCheck : CapableActivity<TmplCheckBinding>() {
         b.bottomNavigationView.setOnItemSelectedListener {
             when(it.itemId) {
                 R.id.home -> {
+                    b.searchView.visibility = View.VISIBLE
                     replaceFragment(Home.newInstance(UserSettings("test"), fullArray))
+                }
+                R.id.favorites -> {
+                   this.switchToFavorites()
+                }
+                R.id.profile -> {
+                    b.searchView.visibility = View.GONE
+                    replaceFragment(Profile.newInstance(Companion.User, Companion.who ?: ""))
                 }
             }
             true
@@ -48,7 +54,7 @@ class NavigationCheck : CapableActivity<TmplCheckBinding>() {
                 b.searchView.clearFocus()
                 if (query != null) {
                     val filteredItems = fullArray.filter { it.name.contains(query) }
-                    getFragment<Home>()?.attach(R.id.frame_layout, fullArray)
+                    getFragment<Home>()?.attach(R.id.frame_layout, filteredItems)
                 }
                 return false
             }
@@ -72,11 +78,35 @@ class NavigationCheck : CapableActivity<TmplCheckBinding>() {
 
     }
 
+    private fun switchToFavorites()
+    {
+
+        b.searchView.visibility = View.GONE
+        val matchingIds: ArrayList<StorageItem> = ArrayList()
+
+        if (Companion.User.favourites != null) {
+
+            for (item in fullArray) {
+                if (Companion.User.favourites!!.contains(item.id)) {
+                    matchingIds.add(item)
+                }
+            }
+        }
+
+        replaceFragment(Favorites.newInstance(matchingIds))
+    }
+
     @ViewCallback
     fun filterThat(view: View?) {
 
         val intent = Intent(this, FilterActivity::class.java)
         intent.putExtra("array", ArrayList(fullArray))
         someActivityResultLauncher.launch(intent)
+    }
+
+    @ViewCallback
+    fun onLogOut(view: View) {
+
+        redirect<SignInActivity>()
     }
 }

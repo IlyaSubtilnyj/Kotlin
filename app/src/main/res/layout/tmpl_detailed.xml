@@ -81,47 +81,38 @@
 
         </LinearLayout>
 
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="5dp"
-        android:orientation="horizontal"
-        android:layout_marginHorizontal="16dp">
-
-        <TextView
-            android:id="@+id/tv_rating"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Rating" />
-
-        <TextView
-            android:id="@+id/tv_price"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Price"/>
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/star_off"
-            android:contentDescription="lol"
-            android:id="@+id/imageView">
-
-        </ImageView>
-
-        <com.like.LikeButton
-            app:icon_type="heart"
-            app:icon_size="10dp"
-            android:id="@+id/star_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:anim_scale_factor="1"
-            android:layout_weight="1" />
+            android:layout_marginVertical="5dp"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="16dp">
+
+            <TextView
+                android:id="@+id/tv_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Rating" />
+
+            <TextView
+                android:id="@+id/tv_price"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Price"/>
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="lol"
+                android:onClick="addToFavorites"
+                android:src="@drawable/star_off">
+
+            </ImageView>
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -159,6 +150,7 @@
             tools:listitem="@layout/tmpl_review_list_item">
 
         </ListView>
+
 
         <Button
             android:id="@+id/btn_create_review"

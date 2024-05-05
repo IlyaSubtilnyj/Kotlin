@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
-            android:text="Name" />
+            android:hint="First name" />
 
         <EditText
             android:id="@+id/et_last_name"
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
-            android:text="Name" />
+            android:hint="Second name" />
 
         <Button
             android:id="@+id/buttonSignUp"

@@ -1,12 +1,82 @@
 [
   {
     "id": "",
-    "coaches": ["John Doe", "Jane Smith"],
-    "description": "This is a fitness program.",
-    "imagePrefix": "fitness_program_",
-    "name": "Fitness Program",
-    "price": 99,
+    "coaches": ["Marcus Bennett", "Natalie Foster", "Adrian Hayes"],
+    "description": "A high-energy team known for their lightning-fast plays and thunderous dunks. They dominate the court with their relentless intensity.",
+    "imagePrefix": "thunderbolts_",
+    "name": "The Thunderbolts",
+    "price": 2500,
     "rating": 4.5,
-    "ratingNumber": 100
+    "ratingNumber": 87
+  },
+  {
+    "id": "",
+    "coaches": ["Cynthia Sullivan", "Trevor Ross"],
+    "description": "A powerhouse team with an imposing presence on the court. They combine strength, skill, and strategy to overpower their opponents.",
+    "imagePrefix": "titans_",
+    "name": "The Titans",
+    "price": 1200,
+    "rating": 4.1,
+    "ratingNumber": 92
+  },
+  {
+    "id": "",
+    "coaches": ["Victoria Parker", "Garrett Mitchell", "Hannah Campbell"],
+    "description": "A team known for their fiery passion and explosive offense. They ignite the court with their fast-paced gameplay and sharp shooting.",
+    "imagePrefix": "blaze_",
+    "name": "The Blaze",
+    "price": 3000,
+    "rating": 4.6,
+    "ratingNumber": 81
+  },
+  {
+    "id": "",
+    "coaches": ["Xavier Grayson", "Olivia Ramirez"],
+    "description": "A team that creates a whirlwind of excitement on the court. Their dynamic plays and seamless teamwork leave their opponents spinning.",
+    "imagePrefix": "vortex_",
+    "name": "The Vortex",
+    "price": 5500,
+    "rating": 4.8,
+    "ratingNumber": 77
+  },
+  {
+    "id": "",
+    "coaches": ["Donovan Barnes", "Sophia Nelson", "Ethan Roberts"],
+    "description": "A team that crashes through their opponents' defenses with unstoppable force. They leave a trail of chaos in their wake.",
+    "imagePrefix": "riptides_",
+    "name": "The Riptides",
+    "price": 4500,
+    "rating": 4.8,
+    "ratingNumber": 74
+  },
+  {
+    "id": "",
+    "coaches": ["Isabella Harris", "Benjamin Turner"],
+    "description": "A team that prides itself on its defensive prowess. They are known for their suffocating defense and ability to protect the basket.",
+    "imagePrefix": "guardians_",
+    "name": "The Guardians",
+    "price": 8000,
+    "rating": 4.9,
+    "ratingNumber": 69
+  },
+  {
+    "id": "",
+    "coaches": ["Ava Patterson", "Christian Wallace", "Maya Butler"],
+    "description": "A team that thrives on unpredictability and unconventional strategies. They are known for their daring plays and ability to outsmart their opponents.",
+    "imagePrefix": "mavericks_",
+    "name": "The Mavericks",
+    "price": 2800,
+    "rating": 4.1,
+    "ratingNumber": 99
+  },
+  {
+    "id": "",
+    "coaches": ["Jackson Simmons", "Emily Watson"],
+    "description": "A team with a cunning and venomous style of play. They strike swiftly and decisively, leaving their opponents in awe.",
+    "imagePrefix": "serpents_",
+    "name": "The Serpents",
+    "price": 2200,
+    "rating": 3.9,
+    "ratingNumber": 104
   }
 ]

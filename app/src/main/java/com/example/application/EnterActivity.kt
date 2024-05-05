@@ -21,6 +21,6 @@ fun initialize(context: EnterActivity) {
 
     FirebaseApp.initializeApp(context)
     //FirebaseDatabaseHelper.initialize(context)
-    Segue(_context = context, _destination = NavigationCheck::class.java)()
+    Segue(_context = context, _destination = SignInActivity::class.java)()
     context.finish()
 }
